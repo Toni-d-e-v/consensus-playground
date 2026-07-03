@@ -1,7 +1,10 @@
 /*
- * Core shared types (SPEC §5.1). Phase 0 defines the shapes only —
- * engine logic (tick loop, RNG, network, adversary) lands in Phase 1.
+ * Core shared types (SPEC §5). The engine is framework-free and fully
+ * deterministic: all randomness flows through the injected seeded RNG and
+ * all time is logical ticks (SPEC §4 hard rules).
  */
+
+import type { Rng } from "./rng";
 
 export type NodeId = number;
 export type Tick = number; // logical time, starts at 0
@@ -65,6 +68,64 @@ export interface SimNode {
 
 export interface SimEvent {
   tick: Tick;
-  kind: string; // e.g. "msg_sent", "block_mined", "attack_succeeded", …
+  kind: string; // e.g. "msg_sent", "snapshot_closed", "attack_succeeded", …
   data: Record<string, unknown>; // serializable details
+}
+
+export interface InvariantResult {
+  name: string;
+  ok: boolean;
+  detail?: string;
+}
+
+/*
+ * Live control changes during a run are recorded as timestamped commands
+ * and are part of the replay (SPEC §5.4/§5.7). Replay = re-run with the
+ * same config + the same command list.
+ */
+export interface ConfigPatch {
+  network?: Partial<NetworkConfig>;
+}
+
+export type LiveCommand =
+  | { tick: Tick; kind: "config"; patch: ConfigPatch }
+  | { tick: Tick; kind: "action"; name: string; arg?: unknown };
+
+/** A LiveCommand before the engine stamps the current tick onto it. */
+export type LiveCommandInput =
+  | { kind: "config"; patch: ConfigPatch }
+  | { kind: "action"; name: string; arg?: unknown };
+
+/** Context handed to a node's onTick/onMessage; send() is bound to that node. */
+export interface ProtocolCtx {
+  tick: Tick;
+  config: SimConfig;
+  rng: Rng;
+  send(to: NodeId | "broadcast", payload: ProtocolPayload): void;
+  emit(kind: string, data?: Record<string, unknown>): void;
+}
+
+/** Context for protocol-level actions (e.g. "forge"), not bound to one node. */
+export interface ActionApi {
+  tick: Tick;
+  config: SimConfig;
+  rng: Rng;
+  nodes: readonly SimNode[];
+  sendFrom(from: NodeId, to: NodeId | "broadcast", payload: ProtocolPayload): void;
+  emit(kind: string, data?: Record<string, unknown>): void;
+}
+
+/**
+ * Every protocol implements the same interface so the shell, scrubber, and
+ * sharing work identically everywhere (SPEC §5.2).
+ */
+export interface Protocol<VM = unknown> {
+  name: string;
+  init(config: SimConfig, rng: Rng): ProtocolNodeState[];
+  onTick(node: SimNode, tick: Tick, ctx: ProtocolCtx): void;
+  onMessage(node: SimNode, msg: Message, ctx: ProtocolCtx): void;
+  /** Optional protocol-level action triggered by the UI via a live command. */
+  action?(name: string, arg: unknown, api: ActionApi): void;
+  snapshotView(nodes: readonly SimNode[], tick: Tick, events: readonly SimEvent[]): VM;
+  invariants(nodes: readonly SimNode[], events: readonly SimEvent[]): InvariantResult[];
 }
