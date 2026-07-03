@@ -60,7 +60,7 @@ export function Home() {
       </ol>
 
       <footer className="font-mono text-xs text-ink/40">
-        Phase 0 skeleton — the simulation engine arrives in Phase 1.
+        Deterministic simulations — same seed, same story, every time.
       </footer>
     </main>
   );

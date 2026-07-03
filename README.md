@@ -11,10 +11,14 @@ Full build spec: [SPEC.md](./SPEC.md).
 ## Status
 
 - ✅ **Phase 0 — Skeleton:** Vite + React 18 + TypeScript (strict) + Tailwind,
-  engine-purity ESLint rules, Vitest, CI + GitHub Pages deploy, non-functional
-  exhibit shell (chaos controls + transport bar).
-- ⏳ Phase 1 — Engine core (seeded RNG, tick loop, network, event log).
-- ⏳ Phase 2 — Exhibit 1: Time & ordering (public MVP).
+  engine-purity ESLint rules, Vitest, CI + GitHub Pages deploy.
+- ✅ **Phase 1 — Engine core:** seeded RNG (mulberry32), tick loop with
+  replayable live commands, network model (latency/jitter/loss/partitions),
+  event log, adversary framework, share-URL codec, determinism harness.
+- ✅ **Phase 2 — Exhibit 1: Time & ordering (public MVP):** wall-clock vs
+  quorum snapshots, the "Forge the past" attack, presets, guided intro,
+  simplifications panel, shareable replay URLs.
+- ⏳ Phase 3 — Exhibit 2: Fork wars (Proof of Work).
 
 ## Development
 
