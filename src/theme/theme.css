@@ -1,0 +1,64 @@
+@import "tailwindcss";
+
+/*
+ * SPEC §9 — "laboratory instrument" design language, dark-first.
+ * These tokens are the single source of truth for the palette.
+ */
+@theme {
+  --color-bg: #0e1116; /* near-black blue-gray background */
+  --color-panel: #161b22; /* panel surfaces */
+  --color-ink: #e6edf3; /* primary ink */
+  --color-teal: #2dd4bf; /* instrument accent — honest activity */
+  --color-signal: #f87171; /* adversary / danger */
+  --color-amber: #fbbf24; /* finalized / committed */
+  --color-muted: #30363d; /* muted structure: borders, gridlines */
+
+  --font-display: "Space Grotesk", system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, "SF Mono", monospace;
+}
+
+:root {
+  color-scheme: dark;
+}
+
+body {
+  background-color: var(--color-bg);
+  color: var(--color-ink);
+  font-family: var(--font-display);
+}
+
+/* Instrument-style range inputs (chaos controls, scrubber) */
+input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 2px;
+  background: var(--color-muted);
+  border-radius: 1px;
+  outline-offset: 4px;
+}
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--color-teal);
+  cursor: pointer;
+}
+input[type="range"]::-moz-range-thumb {
+  width: 12px;
+  height: 12px;
+  border: none;
+  border-radius: 50%;
+  background: var(--color-teal);
+  cursor: pointer;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
